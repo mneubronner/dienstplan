@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Dienstplan Anmeldung</title>
+  <style>
+    body { font-family: Arial; max-width: 800px; margin: auto; }
+    h2 { margin-top: 40px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    td, th { padding: 6px; border-bottom: 1px solid #ccc; }
+    .frei { color: green; font-weight: bold; }
+    .belegt { color: #444; }
+    button { padding: 6px 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<h1>Einteilung Hotzenwaldwettbewerb – Anmeldung</h1>
+<p>Bitte trage dich in freie Positionen ein.</p>
+
+<div id="content">Wird geladen…</div>
+
+<script>
+async function main() {
+  const response = await fetch('woche.json');
+  const data = await response.json();
+  const container = document.getElementById('content');
+  container.innerHTML = '';
+
+  for (const tag in data) {
+    const eintrag = data[tag];
+    const rollen = eintrag.rollen;
+
+    const section = document.createElement('div');
+    section.innerHTML = `<h2>${tag.charAt(0).toUpperCase() + tag.slice(1)} – ${eintrag.datum}</h2>`;
+
+    const table = document.createElement('table');
+    for (const rolle in rollen) {
+      const name = rollen[rolle];
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${rolle.replace(/_/g, ' ')}</td>
+        <td class="${name ? 'belegt' : 'frei'}">${name || 'frei'}</td>
+        <td>
+          ${name ? '' : `<button onclick="eintragen('${tag}','${rolle}')">Eintragen</button>`}
+        </td>
+      `;
+      table.appendChild(tr);
+    }
+
+    section.appendChild(table);
+    container.appendChild(section);
+  }
+}
+
+function eintragen(tag, rolle) {
+  // Formspree-ID später einfügen
+  const url = `https://formspree.io/f/DEINE_ID?tag=${encodeURIComponent(tag)}&rolle=${encodeURIComponent(rolle)}`;
+  window.location.href = url;
+}
+
+main();
+</script>
+
+</body>
+</html>
