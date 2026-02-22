@@ -1,0 +1,39 @@
+name: Update Dienst-Slot
+
+on:
+  repository_dispatch:
+    types: [update-slot]
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install jq
+        run: sudo apt-get install jq
+
+      - name: Update slot in JSON
+        run: |
+          TAG="${{ github.event.client_payload.tag }}"
+          ROLLE="${{ github.event.client_payload.rolle }}"
+          NAME="${{ github.event.client_payload.name }}"
+
+          echo "Eintragen von $NAME in $ROLLE am $TAG"
+
+          # JSON aktualisieren
+          cat woche.json | jq --arg tag "$TAG" --arg rolle "$ROLLE" --arg name "$NAME" \
+            '.[$tag].rollen[$rolle] = $name' > woche.tmp
+
+          mv woche.tmp woche.json
+
+      - name: Commit changes
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+
+          git add woche.json
+          git commit -m "Update: ${{ github.event.client_payload.tag }} / ${{ github.event.client_payload.rolle }} → ${{ github.event.client_payload.name }}"
+          git push https://mneubronner:${{ secrets.PAT }}@github.com/mneubronner/dienstplan.git
