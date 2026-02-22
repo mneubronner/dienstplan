@@ -2,11 +2,13 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Eintragen</title>
+  <title>In Dienst eintragen</title>
   <style>
-    body { font-family: Arial; max-width: 600px; margin: auto; }
+    body { font-family: Arial; max-width: 600px; margin: auto; padding: 20px; }
     label { display: block; margin-top: 12px; }
-    input, button { padding: 8px; width: 100%; }
+    input, button { padding: 10px; width: 100%; font-size: 1rem; }
+    button { margin-top: 20px; cursor: pointer; }
+    #status { margin-top: 20px; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -15,23 +17,46 @@
 
 <p id="info"></p>
 
-<form id="slotForm" method="POST" action="https://api.github.com/repos/mneubronner/dienstplan/dispatches">
+<form id="dienstForm">
   <input type="hidden" id="tag" name="tag">
   <input type="hidden" id="rolle" name="rolle">
 
   <label>Dein Name:</label>
-  <input type="text" name="name" required>
+  <input type="text" id="name" name="name" required>
 
   <button type="submit">Eintragen</button>
 </form>
 
+<p id="status"></p>
+
 <script>
-// Werte aus URL laden
+// Werte aus URL übernehmen und anzeigen
 const params = new URLSearchParams(window.location.search);
-document.getElementById('tag').value = params.get('tag');
-document.getElementById('rolle').value = params.get('rolle');
-document.getElementById('info').innerText =
-  `Du trägst dich ein für: ${params.get('rolle')} am ${params.get('tag')}`;
+const tag = params.get("tag");
+const rolle = params.get("rolle");
+
+document.getElementById("tag").value = tag;
+document.getElementById("rolle").value = rolle;
+
+document.getElementById("info").innerText =
+  `Du trägst dich ein für: ${rolle} am ${tag}`;
+
+// Formularabsenden verarbeiten
+document.getElementById("dienstForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const status = document.getElementById("status");
+
+  status.innerText = "Eintrag wird gespeichert…";
+
+  // --- NOCH OHNE API CALL ---
+  // Wir testen erst den Frontend-Teil
+
+  status.innerText = "Formular OK. Backend kommt im nächsten Schritt.";
+
+  // Später: window.location.href = "index.html";
+});
 </script>
 
 </body>
